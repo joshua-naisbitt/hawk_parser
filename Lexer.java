@@ -26,6 +26,9 @@ import java.io.IOException;
  */
 
 public class Lexer {
+
+    static boolean lexerOutput = true; // set to true to see lexer output
+
     static int charClass;
     static StringBuilder lexeme = new StringBuilder();
     static char nextChar;
@@ -37,6 +40,7 @@ public class Lexer {
     static final int LETTER = 0;
     static final int DIGIT = 1;
     static final int UNKNOWN = 99;
+
     /* Token codes */
     static final int INT_LIT = 10;
     static final int IDENT = 11;
@@ -55,6 +59,21 @@ public class Lexer {
     static final int COLON = 41;
     static final int SEMI_COLON = 42;
     static final int EOF = -1;
+    /* Reserved Words */
+    static final int PROGRAM = 51;
+    static final int BEGIN = 52;
+    static final int END = 53;
+    static final int IF = 54;
+    static final int THEN = 55;
+    static final int ELSE = 56;
+    static final int INPUT = 57;
+    static final int OUTPUT = 58;
+    static final int INT_WORD = 59;
+    static final int WHILE = 60;
+    static final int LOOP = 61;
+    /* Reserved Words by type */
+    static final int FLOAT = 62;
+    static final int DOUBLE = 63;
 
 
     /* addChar - a function to add nextChar to lexeme */
@@ -96,7 +115,6 @@ public class Lexer {
              * 
              * TODO: 
              * Check if identifiers starting with '_' are handled correctly
-             * Add handler for reserved words: program, begin, end, if, then, else, input, output, int, while, loop.
              * Redeclaration of a variable should produce an error and exit the program
             */
             case LETTER:
@@ -106,7 +124,57 @@ public class Lexer {
                     addChar();
                     getChar();
                 }
-                nextToken = IDENT;
+                // switch/case checks for all reserved words, default to identifier 
+                switch (lexeme.toString().trim()) {
+                    case "program":
+                        nextToken = PROGRAM;
+                        break;
+                    case "begin":
+                        nextToken = BEGIN;
+                        break;
+                    case "end":
+                        nextToken = END;
+                        break;
+                    case "if":
+                        nextToken = IF;
+                        break;
+                    case "then":
+                        nextToken = THEN;
+                        break;
+                    case "else":
+                        nextToken = ELSE;
+                        break;
+                    case "input":
+                        nextToken = INPUT;
+                        break;
+                    case "output":
+                        nextToken = OUTPUT;
+                        break;
+                    case "int":
+                        nextToken = INT_WORD;
+                        break;
+                    case "while":
+                        nextToken = WHILE;
+                        break;
+                    case "loop":
+                        nextToken = LOOP;
+                        break;
+                    case "float":
+                        nextToken = FLOAT;
+                        break;
+                    case "double":
+                        nextToken = DOUBLE;
+                        break;
+                    default:
+                        nextToken = IDENT;
+                        // TODO: 
+                        // add redeclaration handler (throw error)
+                        // idea: 
+                        // Initialize and store an empty lookup table of identifiers, 
+                        // if the identifier IS NOT in the table, add it to the table
+                        // if the identifier IS in the table, throw error
+                        break;
+                }
                 break;
             /* Parse integer literals */
             case DIGIT:
@@ -129,7 +197,7 @@ public class Lexer {
                 lexeme = new StringBuilder("EOF");
                 break;
         } /* End of switch */
-        System.out.printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
+        if (lexerOutput) System.out.printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
         return nextToken;
     } /* End of function lex */
     
