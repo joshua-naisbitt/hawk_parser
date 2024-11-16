@@ -6,12 +6,11 @@ public class Parser {
 
     static Lexer lexer = new Lexer();
     static int nextToken;
+    static int lineNum;
 
-    static boolean requiredOutput = true; // set to true for term project requirement output
-    static boolean fullOutput = true;
-    static boolean exitOutput = true; // set to true to include entering terminals
-   
-    
+    static boolean requiredOutput = true; // set to true to show show entrypoints for nonterminals (term project requirement output)
+    static boolean fullOutput = false; // set to true to show entry points for ID, TYPE, and NUM (for debugging)
+    static boolean exitOutput = false; // set to true to show exit points for all recursive function (for debugging)
 
     //mutually recursive procedures:
     // Call these for each EBNF Grammar rule
@@ -27,6 +26,7 @@ public class Parser {
         } 
         nextToken = Lexer.lex();
         stmt_sec();
+        nextToken = Lexer.lex();
         if (exitOutput) System.out.println("Exit PROGRAM");
     }
     
@@ -55,16 +55,12 @@ public class Parser {
         // As long as the next token is : , get the next token and parse the type, otherwise throw an error
         
         if (nextToken != Lexer.COLON){
-            // TODO
-            // Implement proper error
-            System.out.println("expected colon, error");
+            error("expected colon ':'", 1);
         }
         nextToken = Lexer.lex();
         type();
         if (nextToken != Lexer.SEMI_COLON){
-            // TODO
-            // Implement proper error
-            System.out.println("expected semi colon, error");
+            error("expected semi-colon ';'", 2);
         }
         if (exitOutput) System.out.println("Exit DECL");
     }
@@ -88,14 +84,12 @@ public class Parser {
     static void id() throws IOException {
         if (fullOutput) System.out.println("ID");
         if (nextToken != Lexer.IDENT){
-            // TODO
-            // implement proper error
-            System.out.println("Error: expected " + Lexer.IDENT + ", received " + nextToken + ". terminating program");
+            error("expected identifier", 3);
         }else{
-            if (exitOutput) System.out.println("Terminal Identifier found");
+            if (exitOutput) System.out.println("Terminal ID found");
         }
         nextToken = Lexer.lex();
-        if (exitOutput && fullOutput) System.out.println("Exit <ID>");
+        if (exitOutput && fullOutput) System.out.println("Exit ID");
     }
 
     // Rule 06: STMT_SEC  ---> STMT | STMT STMT_SEC
@@ -104,9 +98,9 @@ public class Parser {
         if (requiredOutput) System.out.println("STMT_SEC");
         // Parse the first STMT
         stmt();
-        // As long as the next token is not "end" stmt_sec will recursively call (filling the entire statement section)
+        // recursively call stmt_sec (filling the entire statement section) until a valid ender to a statement section is found
         nextToken = Lexer.lex();
-        while (nextToken != Lexer.END && nextToken != Lexer.EOF ){
+        while (nextToken != Lexer.END && nextToken != Lexer.EOF && nextToken != Lexer.SEMI_COLON && nextToken != Lexer.ELSE){
             stmt_sec();
         } 
         if (exitOutput) System.out.println("Exit STMT_SEC");
@@ -133,6 +127,9 @@ public class Parser {
             case Lexer.OUTPUT:
                 output();
                 break;
+            case Lexer.EOF:
+                System.out.println("----------------------Error: no valid statement found");
+                break;
         }
 
         if (exitOutput) System.out.println("Exit STMT");
@@ -144,9 +141,7 @@ public class Parser {
         if (requiredOutput) System.out.println("ASSIGN");
         id();
         if (nextToken != Lexer.ASSIGN_OP){
-            // TODO
-            // throw error
-            System.out.println("Error: expected " + Lexer.ASSIGN_OP + ", received " + nextToken + ". terminating program");
+            error("expected assignment operator", 8);
         }
         else
         nextToken = Lexer.lex();
@@ -162,8 +157,7 @@ public class Parser {
         nextToken = Lexer.lex();
         comp();
         if (nextToken != Lexer.THEN){
-            // TODO proper error
-            System.out.println("Error THEN not found");
+            error("expected keyword 'then'", 9);
         } 
         nextToken = Lexer.lex();
         stmt_sec();
@@ -174,36 +168,41 @@ public class Parser {
         if (nextToken == Lexer.END){
             nextToken = Lexer.lex();
             if (nextToken != Lexer.IF){
-                // TODO proper error
-                System.out.println("Error end IF not found");
+                error("expected keyword 'end if'", 9);
             }
         } 
-
+        nextToken = Lexer.lex();
+        if (nextToken != Lexer.SEMI_COLON) {
+            error("expected semi-colon", 9);
+        }
+        
         if (exitOutput) System.out.println("Exit IFSTMT");
     }
 
     // Rule 10: WHILESTMT ---> while COMP loop STMT_SEC end loop ;
     
     static void whileStmt() throws IOException {
-        if (requiredOutput) System.out.println("WHILESTMT");
+        if (requiredOutput) System.out.println("WHILE_STMT");
 
         nextToken = Lexer.lex();
         comp();
         if (nextToken != Lexer.LOOP){
-            // TODO proper error
-            System.out.println("Error LOOP not found");
+            error("expected keyword 'loop'", 10);
         } 
         nextToken = Lexer.lex();
         stmt_sec();
         if (nextToken == Lexer.END){
             nextToken = Lexer.lex();
             if (nextToken != Lexer.LOOP){
-                // TODO proper error
-                System.out.println("Error end LOOP not found");
+                error("expected keyword 'end loop'", 9);
             }
         } 
+        nextToken = Lexer.lex();
+        if (nextToken != Lexer.SEMI_COLON) {
+            error("expected semi-colon ';'", 9);
+        }
 
-        if (exitOutput) System.out.println("Exit <whileStmt>");
+        if (exitOutput) System.out.println("Exit WHILE_STMT");
     }
 
     // Rule 11: INPUT     ---> input ID_LIST;
@@ -212,7 +211,7 @@ public class Parser {
         if (requiredOutput) System.out.println("INPUT");
         nextToken = Lexer.lex();
         id_list();
-        if (exitOutput) System.out.println("Exit <input>");
+        if (exitOutput) System.out.println("Exit INPUT");
     }
 
     // Rule 12: OUTPUT    ---> output ID_LIST; | output NUM;
@@ -227,13 +226,13 @@ public class Parser {
             num();
         }
         else {
-            // TODO throw error
+            error("expected ID_LIST or NUM", 12);
         }
         nextToken = Lexer.lex();
         if (nextToken == Lexer.SEMI_COLON){
-            // TODO throw error
+            error("expected semi-colon", 12);
         }
-        if (exitOutput) System.out.println("Exit <output>");
+        if (exitOutput) System.out.println("Exit OUTPUT");
     }
 
     // Rule 13: EXPR      ---> FACTOR | FACTOR + EXPR | FACTOR - EXPR
@@ -247,7 +246,7 @@ public class Parser {
             nextToken = Lexer.lex();
             expr();
         }
-        if (exitOutput) System.out.println("Exit <expr>");
+        if (exitOutput) System.out.println("Exit EXPR");
     }
 
     // Rule 14: FACTOR    ---> OPERAND | OPERAND * FACTOR | OPERAND / FACTOR
@@ -261,7 +260,7 @@ public class Parser {
             nextToken = Lexer.lex();
             factor();
         }
-        if (exitOutput) System.out.println("Exit <factor>");
+        if (exitOutput) System.out.println("Exit FACTOR");
     }
 
     // Rule 15: OPERAND   ---> NUM | ID | ( EXPR )
@@ -275,29 +274,32 @@ public class Parser {
             id();
         }
         else if (nextToken == Lexer.LEFT_PAREN){
-            // TODO
-            System.out.println("ERROR: HAS ( EXPR ) HAS NOT BEEN IMPLEMENTED YET");
+            nextToken = Lexer.lex();
+            expr();
+            nextToken = Lexer.lex();
+            if (nextToken != Lexer.RIGHT_PAREN){
+                error("expected right parenthesis ')'", 15);
+            }
+            
         }
         else {
-            // TODO
-            // Error
+            error("expected NUM, ID, or ( EXPR )", 15);
         }
-        if (exitOutput) System.out.println("Exit <operand>");
+        if (exitOutput) System.out.println("Exit OPERAND");
     }
 
     // Rule 16: NUM       ---> (0 | 1 | ... | 9)+ [.(0 | 1 | ... | 9)+]
-
+    // TODO
+    // consider decimals
     static void num() throws IOException {
-        if (fullOutput) System.out.println("Enter <num>");
+        if (fullOutput) System.out.println("Enter NUM");
         if (nextToken != Lexer.INT_LIT){
-            // TODO
-            // implement proper error
-            System.out.println("Error: expected " + Lexer.IDENT + ", received " + nextToken + ". terminating program");
+            error("expected integer literal", 16);
         }else{
             if (exitOutput) System.out.println("Terminal NUM found");
         }
         nextToken = Lexer.lex();
-        if (exitOutput && fullOutput) System.out.println("Exit <num>");
+        if (exitOutput && fullOutput) System.out.println("Exit NUM");
     }
 
     // Rule 17: COMP      ---> ( OPERAND = OPERAND ) | ( OPERAND <> OPERAND ) | ( OPERAND > OPERAND ) | ( OPERAND < OPERAND )
@@ -305,7 +307,7 @@ public class Parser {
     static void comp() throws IOException {
         if (requiredOutput) System.out.println("COMP");
         if (nextToken != Lexer.LEFT_PAREN){
-            // TODO throw error
+            error("expected left parenthesis '('", 15);
         }
         nextToken = Lexer.lex();
         operand();
@@ -328,16 +330,16 @@ public class Parser {
             operand();
         }
         else {
-            // TODO throw error comparison operator expected
+            error("expected any comparison operator", 17);
         }
 
         if (nextToken != Lexer.RIGHT_PAREN){
-            // TODO throw error
-            System.out.println("Error Expected right parenthesis");
+            error("expected right parenthesis '('", 17);
         } 
         nextToken = Lexer.lex();
-        if (exitOutput) System.out.println("Exit <COMP>");
+        if (exitOutput) System.out.println("Exit COMP");
     }
+    
     // Rule 18: TYPE      ---> int | float | double
 
     static void type() throws IOException {
@@ -346,13 +348,16 @@ public class Parser {
             System.out.println("No type found to parse.");
         }
         nextToken = Lexer.lex();
-        if (exitOutput) System.out.println("Exit <TYPE>");
+        if (exitOutput) System.out.println("Exit TYPE");
     }
     
     // Error reporting function
-    static void error(String message) {
-        System.out.println("Parse error: " + message);
-        System.exit(1);
+    // TODO
+    // Review error handling system
+
+    static void error(String message, int errCode) {
+        System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber);
+        System.exit(errCode);
     }
     
         // Main entry point for parsing the Hawk script
@@ -369,6 +374,8 @@ public class Parser {
         if (nextToken == Lexer.PROGRAM){
             program(); // Start parsing the program
         }
+        if (nextToken == Lexer.EOF){
         System.out.println("Parsing completed successfully!");
+        }
     }
 }

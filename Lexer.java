@@ -27,7 +27,10 @@ import java.io.IOException;
 
 public class Lexer {
 
-    static boolean lexerOutput = true; // set to true to see lexer output
+    static boolean lexerOutput = false; // set to true to see lexer output
+
+     // field to store line number
+     static int lineNumber = 1;
 
     static int charClass;
     static StringBuilder lexeme = new StringBuilder();
@@ -90,6 +93,10 @@ public class Lexer {
         int charRead = in_fp.read();
         if (charRead != -1) {
             nextChar = (char) charRead;
+            if (nextChar == '\n') {
+                lineNumber++; // Increment line number when encountering a newline
+            }
+
             if (Character.isLetter(nextChar)) {
                 charClass = LETTER;
             } else if (Character.isDigit(nextChar)) {
@@ -101,10 +108,13 @@ public class Lexer {
             charClass = EOF;
         }
     }
-    static void getNonBlank() throws IOException{
-        while (Character.isWhitespace(nextChar)){
+    static void getNonBlank() throws IOException {
+        while (Character.isWhitespace(nextChar)) {
             getChar();
-        }            
+            if (charClass == EOF) {
+                return; // Exit the loop if EOF is encountered
+            }
+        }
     }
     static int lex() throws IOException{
         lexLen = 0;
@@ -197,7 +207,7 @@ public class Lexer {
                 lexeme = new StringBuilder("EOF");
                 break;
         } /* End of switch */
-        if (lexerOutput) System.out.printf("Next token is: %d, Next lexeme is %s\n", nextToken, lexeme);
+        if (lexerOutput) System.out.printf("Line: %d, Next token is: %d, Next lexeme is %s\n", lineNumber, nextToken, lexeme);
         return nextToken;
     } /* End of function lex */
     
