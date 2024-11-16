@@ -20,8 +20,8 @@ public class Parser {
     static void program() throws IOException {
         if (requiredOutput) System.out.println("PROGRAM");
         // Parse the DECL_SEC or skip straight to STMT_SEC if "begin" is found
+        nextToken = Lexer.lex();
         if (nextToken != Lexer.BEGIN){
-            nextToken = Lexer.lex();
             decl_sec();
         } 
         nextToken = Lexer.lex();
@@ -55,12 +55,12 @@ public class Parser {
         // As long as the next token is : , get the next token and parse the type, otherwise throw an error
         
         if (nextToken != Lexer.COLON){
-            error("expected colon ':'", 1);
+            error("expected colon ':'", 3);
         }
         nextToken = Lexer.lex();
         type();
         if (nextToken != Lexer.SEMI_COLON){
-            error("expected semi-colon ';'", 2);
+            error("expected semi-colon ';'", 3);
         }
         if (exitOutput) System.out.println("Exit DECL");
     }
@@ -84,7 +84,7 @@ public class Parser {
     static void id() throws IOException {
         if (fullOutput) System.out.println("ID");
         if (nextToken != Lexer.IDENT){
-            error("expected identifier", 3);
+            error("expected identifier", 5);
         }else{
             if (exitOutput) System.out.println("Terminal ID found");
         }
@@ -128,6 +128,7 @@ public class Parser {
                 output();
                 break;
             case Lexer.EOF:
+                // TODO error handling
                 System.out.println("----------------------Error: no valid statement found");
                 break;
         }
@@ -194,12 +195,12 @@ public class Parser {
         if (nextToken == Lexer.END){
             nextToken = Lexer.lex();
             if (nextToken != Lexer.LOOP){
-                error("expected keyword 'end loop'", 9);
+                error("expected keyword 'end loop'", 10);
             }
         } 
         nextToken = Lexer.lex();
         if (nextToken != Lexer.SEMI_COLON) {
-            error("expected semi-colon ';'", 9);
+            error("expected semi-colon ';'", 10);
         }
 
         if (exitOutput) System.out.println("Exit WHILE_STMT");
@@ -224,12 +225,13 @@ public class Parser {
         }
         else if (nextToken == Lexer.INT_LIT){
             num();
+            nextToken = Lexer.lex();
         }
         else {
             error("expected ID_LIST or NUM", 12);
         }
-        nextToken = Lexer.lex();
-        if (nextToken == Lexer.SEMI_COLON){
+        // nextToken = Lexer.lex();
+        if (nextToken != Lexer.SEMI_COLON){
             error("expected semi-colon", 12);
         }
         if (exitOutput) System.out.println("Exit OUTPUT");
@@ -269,6 +271,7 @@ public class Parser {
         if (requiredOutput) System.out.println("OPERAND");
         if (nextToken == Lexer.INT_LIT){
             num();
+            nextToken = Lexer.lex();
         }
         else if (nextToken == Lexer.IDENT){
             id();
@@ -298,7 +301,7 @@ public class Parser {
         }else{
             if (exitOutput) System.out.println("Terminal NUM found");
         }
-        nextToken = Lexer.lex();
+        // nextToken = Lexer.lex();
         if (exitOutput && fullOutput) System.out.println("Exit NUM");
     }
 
@@ -356,7 +359,7 @@ public class Parser {
     // Review error handling system
 
     static void error(String message, int errCode) {
-        System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber);
+        System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber + " errcode: " + errCode);
         System.exit(errCode);
     }
     
@@ -374,8 +377,9 @@ public class Parser {
         if (nextToken == Lexer.PROGRAM){
             program(); // Start parsing the program
         }
+        nextToken = Lexer.lex();
         if (nextToken == Lexer.EOF){
-        System.out.println("Parsing completed successfully!");
+            System.out.println("Parsing completed successfully!");
         }
     }
 }
