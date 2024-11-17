@@ -98,13 +98,13 @@ public class Lexer {
                 lineNumber++; // Increment line number when encountering a newline
             }
 
-            if (Character.isLetter(nextChar)) {
+            if (Character.isLetter(nextChar) || nextChar == '_') {
                 charClass = LETTER;
             } else if (Character.isDigit(nextChar)) {
                 charClass = DIGIT;
             } else if (nextChar == '.') {
                 charClass = DOT;
-            }else {
+            } else {
                 charClass = UNKNOWN;
             }
         } else {
@@ -124,12 +124,7 @@ public class Lexer {
         lexeme.setLength(0);// Reset lexeme
         getNonBlank();
         switch (charClass) {
-            /* Parse identifiers 
-             * 
-             * TODO: 
-             * Check if identifiers starting with '_' are handled correctly
-             * Redeclaration of a variable should produce an error and exit the program
-            */
+            /* Identifiers */
             case LETTER:
                 addChar();
                 getChar();
@@ -180,16 +175,11 @@ public class Lexer {
                         break;
                     default:
                         nextToken = IDENT;
-                        // TODO: 
-                        // add redeclaration handler (throw error)
-                        // idea: 
-                        // Initialize and store an empty lookup table of identifiers, 
-                        // if the identifier IS NOT in the table, add it to the table
-                        // if the identifier IS in the table, throw error
                         break;
                 }
                 break;
-            /* Parse integer literals */
+            /* Integer literals */
+            // TODO max 10 digits and 10 decimal places
             case DIGIT:
                 addChar();
                 getChar();

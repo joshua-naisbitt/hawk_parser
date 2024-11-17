@@ -37,8 +37,6 @@ public class Parser {
     }
     
     // Rule 02: DECL_SEC  ---> DECL | DECL DECL_SEC
-    // TODO:
-    // Redeclaration handling
 
     static void decl_sec() throws IOException {
         if (requiredOutput) System.out.println("DECL_SEC");
@@ -154,8 +152,7 @@ public class Parser {
                 output();
                 break;
             case Lexer.EOF:
-                // TODO error handling
-                System.out.println("----------------------Error: no valid statement found");
+                error("no valid statement found. Statement must be ASSIGN | IFSTMT | WHILESTMT | INPUT | OUTPUT", 7);
                 break;
         }
 
@@ -318,8 +315,6 @@ public class Parser {
     }
 
     // Rule 16: NUM       ---> (0 | 1 | ... | 9)+ [.(0 | 1 | ... | 9)+]
-    // TODO
-    // consider decimals
     static void num() throws IOException {
         if (fullOutput) System.out.println("Enter NUM");
         if (nextToken != Lexer.INT_LIT){
@@ -359,7 +354,7 @@ public class Parser {
             operand();
         }
         else {
-            error("expected any comparison operator", 17);
+            error("expected comparison operator", 17);
         }
 
         if (nextToken != Lexer.RIGHT_PAREN){
