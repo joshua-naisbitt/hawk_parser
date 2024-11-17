@@ -5,6 +5,12 @@ import java.util.HashSet;
 
 public class Parser {
 
+    //Configuration options
+    static boolean requiredOutput = true; // set to true to show show entrypoints for nonterminals (term project requirement output).
+    static boolean fullOutput = false; // set to true to show entry points for ID, TYPE, and NUM (for debugging).
+    static boolean exitOutput = false; // set to true to show exit points for all recursive function (for debugging).
+    static String filepath = "hawk_script.txt"; // The name of the hawk script text file to use as input for the parser.
+
     // variable redeclaration handler
     static HashSet<String> symbolTable = new HashSet<>();
     static boolean declaring = true;
@@ -12,10 +18,6 @@ public class Parser {
     static Lexer lexer = new Lexer();
     static int nextToken;
     static int lineNum;
-
-    static boolean requiredOutput = true; // set to true to show show entrypoints for nonterminals (term project requirement output)
-    static boolean fullOutput = false; // set to true to show entry points for ID, TYPE, and NUM (for debugging)
-    static boolean exitOutput = false; // set to true to show exit points for all recursive function (for debugging)
 
     //mutually recursive procedures:
     // Call these for each EBNF Grammar rule
@@ -384,14 +386,15 @@ public class Parser {
     
         // Main entry point for parsing the Hawk script
     public static void main(String[] args) throws IOException {
-        System.out.println("Starting Parsing");
-        Lexer.in_fp = new BufferedReader(new FileReader("hawk_script.txt"));
+        System.out.println("Starting Parsing.");
+        Lexer.in_fp = new BufferedReader(new FileReader(filepath));
         
         while (nextToken != Lexer.PROGRAM && nextToken != Lexer.EOF){
             nextToken = Lexer.lex(); // Initialize lexer and get the first token
         }
         if (nextToken == Lexer.EOF){
             System.out.println("No program found to parse.");
+            System.exit(0);
         }
         if (nextToken == Lexer.PROGRAM){
             program(); // Start parsing the program
@@ -399,6 +402,7 @@ public class Parser {
         nextToken = Lexer.lex();
         if (nextToken == Lexer.EOF){
             System.out.println("Parsing completed successfully!");
+            System.exit(0);
         }
     }
 }

@@ -1,9 +1,12 @@
 # Hawk Parser
 UHCL Programming Language Concepts Term Project. 
 
-This project implements a scanner and a recursive descent parser for a small made-up programming language called "Hawk," a programming language that follows the EBNF grammar below:
 
-## Hawk Extended Backus-Naur Form grammar:
+## About
+
+This project is a java implementation of a scanner and a recursive descent parser for a small fake programming language called "Hawk," a programming language that follows the EBNF grammar below:
+
+### Hawk Extended Backus-Naur Form grammar:
 
  *  Rule 01: PROGRAM   ---> program DECL_SEC begin STMT_SEC end; | program begin STMT_SEC end;
  *  Rule 02: DECL_SEC  ---> DECL | DECL DECL_SEC
@@ -24,6 +27,8 @@ This project implements a scanner and a recursive descent parser for a small mad
  *  Rule 17: COMP      ---> ( OPERAND = OPERAND ) | ( OPERAND <> OPERAND ) | ( OPERAND > OPERAND ) | ( OPERAND < OPERAND )
  *  Rule 18: TYPE      ---> int | float | double
 
+In addition to parsing the input programs, the recursive parser generates errors when encountered and exits with the exit code of the violated grammar rule.
+
 ## Configuring options:
  * The `Lexer.java` file has a `lexerOutput` boolean (by default set to false) to optionally show outputs from the lexical analyzer.
  * The `Parser.java` file has `fullOutput` and `exitOutput` booleans (both by default set to false) to optionally output the recursive procedure exit points and additional output context.
@@ -31,7 +36,7 @@ This project implements a scanner and a recursive descent parser for a small mad
 
 ## How to run the project:
 
- * To compile the source code, put the `Lexer.java`, `Parser.java`, and `hawk_script.txt` files in the same directory open a terminal in that directory, and run `javac Lexer.java Parser.java` (or do an equivalent java source code compilation process).
+ * To compile the source code, put the `Lexer.java`, `Parser.java`, and `hawk_script.txt` files in the same directory, open a terminal in that directory, and run `javac Lexer.java Parser.java` (or do an equivalent java source code compilation process).
  * Overwrite the contents of `hawk_script.txt` with the code you want to parse. 
  * Run `java parser` inside the terminal.
 
