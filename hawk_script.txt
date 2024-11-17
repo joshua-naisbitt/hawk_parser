@@ -1,12 +1,12 @@
 program 
-  x, p : int;
+  _x, p : int;
   r : int;
 begin
-  input x, p;
-  if (p>0) then
-   while (p >1) 
+  input _x, p;
+  if (p>_x) then
+   while (p >4315.67891) 
    loop
-     x := x *y;
+     _x := _x *y;
      p := p -1;
    end loop;
    r := x;

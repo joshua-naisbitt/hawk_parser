@@ -376,7 +376,7 @@ public class Parser {
     }
     
     // Error reporting function
-    // errCode corresponds to number of the grammar rule the error was found in.  
+    // errCode corresponds to number of the grammar rule the error was found in. errCode 100 = number lexeme too long 
     static void error(String message, int errCode) {
         System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber);
         System.exit(errCode);

@@ -29,23 +29,20 @@ public class Lexer {
 
     static boolean lexerOutput = false; // set to true to see lexer output (for debugging)
 
-     // field to store line number
-     static int lineNumber = 1;
-
+    static int lineNumber = 1;
     static int charClass;
     static StringBuilder lexeme = new StringBuilder();
     static char nextChar;
-    static int lexLen;
+    static int numDigits; // length of integer or decimals places in number
     static int token;
     static int nextToken;
     static BufferedReader in_fp;
-    /* Character classes */
+    // Character classes
     static final int LETTER = 0;
     static final int DIGIT = 1;
     static final int DOT = 2;
     static final int UNKNOWN = 99;
-
-    /* Token codes */
+    // Token codes
     static final int INT_LIT = 10;
     static final int IDENT = 11;
     static final int ASSIGN_OP = 20;
@@ -63,7 +60,7 @@ public class Lexer {
     static final int COLON = 41;
     static final int SEMI_COLON = 42;
     static final int EOF = -1;
-    /* Reserved Words */
+    // Reserved Words
     static final int PROGRAM = 51;
     static final int BEGIN = 52;
     static final int END = 53;
@@ -75,21 +72,24 @@ public class Lexer {
     static final int INT_WORD = 59;
     static final int WHILE = 60;
     static final int LOOP = 61;
-    /* Reserved Words by type */
+    // Reserved Words by type
     static final int FLOAT = 62;
     static final int DOUBLE = 63;
 
-
-    /* addChar - a function to add nextChar to lexeme */
-    
+    // addChar - add nextChar to lexeme
     static void addChar(){    
-        if (lexLen <= 98) {
+        if (numDigits < 10) {
             lexeme.append(nextChar);
-            lexLen++;
+            if (charClass == DIGIT){ 
+                numDigits++;
+            }
         }
-        else
-            System.out.println("ERROR - lexeme is too long \n");
+        else {
+            System.out.println("ERROR !! Number exceeded max length (10 digits) in line " + Lexer.lineNumber);
+            System.exit(100);
+        }
     }
+    // look ahead at next character to determine character class
     static void getChar() throws IOException{
         int charRead = in_fp.read();
         if (charRead != -1) {
@@ -120,7 +120,7 @@ public class Lexer {
         }
     }
     static int lex() throws IOException{
-        lexLen = 0;
+        numDigits = 0;
         lexeme.setLength(0);// Reset lexeme
         getNonBlank();
         switch (charClass) {
@@ -178,8 +178,7 @@ public class Lexer {
                         break;
                 }
                 break;
-            /* Integer literals */
-            // TODO max 10 digits and 10 decimal places
+            // Integer literals
             case DIGIT:
                 addChar();
                 getChar();
@@ -197,20 +196,20 @@ public class Lexer {
                 }
                 nextToken = INT_LIT;
                 break;
-            /* Parentheses and operators */
+            // Parentheses and operators
             case UNKNOWN:
                 lookup(nextChar);
                 getChar();
                 break;
-            /* EOF */
+            // EOF
             case EOF:
                 nextToken = EOF;
                 lexeme = new StringBuilder("EOF");
                 break;
-        } /* End of switch */
+        }
         if (lexerOutput) System.out.printf("Line: %d, Next token is: %d, Next lexeme is %s\n", lineNumber, nextToken, lexeme);
         return nextToken;
-    } /* End of function lex */
+    }
     
     /* lookup - a function to lookup operators and parentheses and return the token */
     static int lookup(char ch) throws IOException {
@@ -252,7 +251,7 @@ public class Lexer {
              * '=' 
              * '<'
              * '>'
-             * includes handler for "<>" not equal op
+             * "<>"
             */ 
             case '=':
                 addChar();
