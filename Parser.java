@@ -1,8 +1,13 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 
 public class Parser {
+
+    // variable redeclaration handler
+    static HashSet<String> symbolTable = new HashSet<>();
+    static boolean declaring = true;
 
     static Lexer lexer = new Lexer();
     static int nextToken;
@@ -24,6 +29,7 @@ public class Parser {
         if (nextToken != Lexer.BEGIN){
             decl_sec();
         } 
+        declaring = false;
         nextToken = Lexer.lex();
         stmt_sec();
         nextToken = Lexer.lex();
@@ -69,7 +75,7 @@ public class Parser {
 
     static void id_list() throws IOException {
         if (requiredOutput) System.out.println("ID_LIST");
-        // Parse the first term
+        // Parse the first ID
         id();
         // As long as the next token is "," get the next token and parse the next id
         while (nextToken == Lexer.COMMA) {
@@ -83,11 +89,31 @@ public class Parser {
 
     static void id() throws IOException {
         if (fullOutput) System.out.println("ID");
+        if (fullOutput) System.out.println("current lexeme in id(): " + Lexer.lexeme.toString() + " | declaring: " + declaring + " | table: " + symbolTable);
+
         if (nextToken != Lexer.IDENT){
             error("expected identifier", 5);
         }else{
-            if (exitOutput) System.out.println("Terminal ID found");
+            // Handle identifier declaration
+            if (declaring){
+                if (symbolTable.contains(Lexer.lexeme.toString())) {
+                    // if identifier is in the symbol table already, throw 
+                    error("Redeclaration of identifier '" + Lexer.lexeme + "'", 2);
+                } else {
+                    // if identifier is not in the symbol table already, add identifier to the  table 
+                    symbolTable.add(Lexer.lexeme.toString()); 
+                } 
+            } else {
+                // check if identifiers have been declared when used in statements
+                if (!symbolTable.contains(Lexer.lexeme.toString())) {
+                    // if identifier is not in the symbol table already, throw an error
+                    error("Missing declaration of identifier '" + Lexer.lexeme + "'", 6);
+                }
+            }
+
+            if (fullOutput) System.out.println("Terminal ID found");
         }
+        if (fullOutput) System.out.println("updated table: " + symbolTable);
         nextToken = Lexer.lex();
         if (exitOutput && fullOutput) System.out.println("Exit ID");
     }
@@ -299,7 +325,7 @@ public class Parser {
         if (nextToken != Lexer.INT_LIT){
             error("expected integer literal", 16);
         }else{
-            if (exitOutput) System.out.println("Terminal NUM found");
+            if (fullOutput) System.out.println("Terminal NUM found");
         }
         // nextToken = Lexer.lex();
         if (exitOutput && fullOutput) System.out.println("Exit NUM");
@@ -355,11 +381,9 @@ public class Parser {
     }
     
     // Error reporting function
-    // TODO
-    // Review error handling system
-
+    // errCode corresponds to number of the grammar rule the error was found in.  
     static void error(String message, int errCode) {
-        System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber + " errcode: " + errCode);
+        System.out.println("ERROR !! " + message + " in line " + Lexer.lineNumber);
         System.exit(errCode);
     }
     

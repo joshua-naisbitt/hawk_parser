@@ -27,7 +27,7 @@ import java.io.IOException;
 
 public class Lexer {
 
-    static boolean lexerOutput = false; // set to true to see lexer output
+    static boolean lexerOutput = false; // set to true to see lexer output (for debugging)
 
      // field to store line number
      static int lineNumber = 1;
@@ -42,6 +42,7 @@ public class Lexer {
     /* Character classes */
     static final int LETTER = 0;
     static final int DIGIT = 1;
+    static final int DOT = 2;
     static final int UNKNOWN = 99;
 
     /* Token codes */
@@ -101,7 +102,9 @@ public class Lexer {
                 charClass = LETTER;
             } else if (Character.isDigit(nextChar)) {
                 charClass = DIGIT;
-            } else {
+            } else if (nextChar == '.') {
+                charClass = DOT;
+            }else {
                 charClass = UNKNOWN;
             }
         } else {
@@ -193,6 +196,14 @@ public class Lexer {
                 while (charClass == DIGIT) {
                     addChar();
                     getChar();
+                }
+                if (charClass == DOT) {
+                    addChar();
+                    getChar();
+                    while (charClass == DIGIT) {
+                        addChar();
+                        getChar();
+                    }
                 }
                 nextToken = INT_LIT;
                 break;
