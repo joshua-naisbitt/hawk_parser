@@ -178,7 +178,7 @@ public class Parser {
     // Rule 09: IFSTMT    ---> if COMP then STMT_SEC end if ; | if COMP then STMT_SEC else STMT_SEC end if ;
 
     static void ifStmt() throws IOException {
-        if (requiredOutput) System.out.println("IFSTMT");
+        if (requiredOutput) System.out.println("IF_STMT");
 
         nextToken = Lexer.lex();
         comp();
@@ -202,7 +202,7 @@ public class Parser {
             error("expected semi-colon", 9);
         }
         
-        if (exitOutput) System.out.println("Exit IFSTMT");
+        if (exitOutput) System.out.println("Exit IF_STMT");
     }
 
     // Rule 10: WHILESTMT ---> while COMP loop STMT_SEC end loop ;
@@ -386,7 +386,7 @@ public class Parser {
     
         // Main entry point for parsing the Hawk script
     public static void main(String[] args) throws IOException {
-        System.out.println("Starting Parsing.");
+        if (fullOutput) System.out.println("Starting Parsing.");
         Lexer.in_fp = new BufferedReader(new FileReader(filepath));
         
         while (nextToken != Lexer.PROGRAM && nextToken != Lexer.EOF){
@@ -401,7 +401,7 @@ public class Parser {
         }
         nextToken = Lexer.lex();
         if (nextToken == Lexer.EOF){
-            System.out.println("Parsing completed successfully!");
+            if (fullOutput) System.out.println("Parsing completed successfully!");
             System.exit(0);
         }
     }

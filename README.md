@@ -29,6 +29,8 @@ This project is a java implementation of a scanner and a recursive descent parse
 
 In addition to parsing the input programs, the recursive parser generates errors when encountered and exits with the exit code of the violated grammar rule.
 
+The project contains two files, `Lexer.java` that scans through the script and   
+
 ## Configuring options:
  * The `Lexer.java` file has a `lexerOutput` boolean (by default set to false) to optionally show outputs from the lexical analyzer.
  * The `Parser.java` file has `fullOutput` and `exitOutput` booleans (both by default set to false) to optionally output the recursive procedure exit points and additional output context.
