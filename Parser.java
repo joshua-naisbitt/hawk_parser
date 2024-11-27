@@ -7,7 +7,7 @@ public class Parser {
 
     //Configuration options
     static boolean requiredOutput = true; // set to true to show show entrypoints for nonterminals (term project requirement output).
-    static boolean fullOutput = false; // set to true to show entry points for ID, TYPE, and NUM (for debugging).
+    static boolean fullOutput = false; // set to true to show entry points for ID, TYPE, and NUM, and start/end parsing statements (for debugging).
     static boolean exitOutput = false; // set to true to show exit points for all recursive function (for debugging).
     static String filepath = "hawk_script.txt"; // The name of the hawk script text file to use as input for the parser.
 
